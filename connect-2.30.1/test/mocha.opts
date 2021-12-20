@@ -1,0 +1,4 @@
+--require should
+--require test/support/env
+--require test/support/http
+--growl
