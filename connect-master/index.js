@@ -116,18 +116,22 @@ proto.use = function use(route, fn) {
  * @private
  */
 
-proto.handle = function handle(req, res, out) {
+ proto.handle = function handle(req, res, out) {
+  // 路由的匹配逻辑是从索引0开始，依次匹配
   var index = 0;
   var protohost = getProtohost(req.url) || '';
   var removed = '';
   var slashAdded = false;
+  // 获取app上的缓存数组
   var stack = this.stack;
+
 
   // final function handler
   var done = out || finalhandler(req, res, {
     env: env,
     onerror: logerror
   });
+
 
   // store the original URL
   req.originalUrl = req.originalUrl || req.url;
@@ -138,28 +142,36 @@ proto.handle = function handle(req, res, out) {
       slashAdded = false;
     }
 
+
     if (removed.length !== 0) {
       req.url = protohost + removed + req.url.substr(protohost.length);
       removed = '';
     }
 
-    // next callback
+
+    // 获取当前索引路由
     var layer = stack[index++];
 
-    // all done
+
+    // 遍历完成
     if (!layer) {
       defer(done, err);
       return;
     }
 
+
     // route data
     var path = parseUrl(req).pathname || '/';
     var route = layer.route;
 
+
     // skip this layer if the route doesn't match
+       // 判断请求中的pathname是否与当前路由匹配
     if (path.toLowerCase().substr(0, route.length) !== route.toLowerCase()) {
+      // 如果不匹配，直接进行下一个路由匹配
       return next(err);
     }
+
 
     // skip if route match does not border "/", ".", or end
     var c = path.length > route.length && path[route.length];
@@ -167,10 +179,12 @@ proto.handle = function handle(req, res, out) {
       return next(err);
     }
 
+
     // trim off the part of the url that matches the route
     if (route.length !== 0 && route !== '/') {
       removed = route;
       req.url = protohost + req.url.substr(protohost.length + removed.length);
+
 
       // ensure leading slash
       if (!protohost && req.url[0] !== '/') {
@@ -179,10 +193,11 @@ proto.handle = function handle(req, res, out) {
       }
     }
 
+
     // call the layer handle
+    // 执行路由处理逻辑
     call(layer.handle, route, err, req, res, next);
   }
-
   next();
 };
 
@@ -223,6 +238,7 @@ proto.listen = function listen() {
  */
 
 function call(handle, route, err, req, res, next) {
+  // 处理函数的参数个数
   var arity = handle.length;
   var error = err;
   var hasError = Boolean(err);
