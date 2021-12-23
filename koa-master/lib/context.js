@@ -195,7 +195,10 @@ if (util.inspect.custom) {
 /**
  * Response delegation.
  */
-
+// delegate(proto, 'response') 建立一个propto对于response的代理
+// method('xxx')为proto的xxx属性定义一个function，这个function是response[xxx]中function的代理
+// access('yyy')为proto的yyy属性定义一个getter和setter，这两个是response[xxx]对应属性的代理
+// getter('zzz') 和 setter('zzz')为proto的zzz属性单独定义getter和setter，这同样是是response['xxx']对应属性的代理，所以access可以看成是两者的集合
 delegate(proto, 'response')
   .method('attachment')
   .method('redirect')
@@ -218,7 +221,7 @@ delegate(proto, 'response')
 /**
  * Request delegation.
  */
-
+// 将request上的方法复制到proto
 delegate(proto, 'request')
   .method('acceptsLanguages')
   .method('acceptsEncodings')
